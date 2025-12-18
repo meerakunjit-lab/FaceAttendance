@@ -1,6 +1,6 @@
-Flask
-gunicorn
+flask
+flask-session
+requests
 opencv-python
+face-recognition
 numpy
-pillow
-Flask-Session
