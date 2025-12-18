@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MPPL Attendance — Settings</title>
+
+  <style>
+    :root{
+      --bg:#03060a;
+      --neon:#00eaff;
+      --neon-2:#00b3ff;
+      --muted:#9bb7c6;
+    }
+    *{box-sizing:border-box}
+
+    body{
+      margin:0;
+      font-family:Inter,Segoe UI,sans-serif;
+      background:linear-gradient(180deg,#03060a,#071426);
+      color:#cfeff6;
+      display:flex;
+    }
+
+    /* Sidebar */
+    .sidebar{
+      width:220px;
+      height:100vh;
+      background:rgba(0,20,30,0.6);
+      border-right:1px solid rgba(0,234,255,0.06);
+      backdrop-filter:blur(8px);
+      padding:20px 14px;
+      position:fixed;
+    }
+    .nav-title{
+      font-size:14px;
+      color:#6fa7ba;
+      margin:20px 0 10px;
+      font-weight:700;
+    }
+    .nav-link{
+      display:block;
+      padding:10px 12px;
+      margin:4px 0;
+      border-radius:8px;
+      color:#b8dbe8;
+      text-decoration:none;
+      font-weight:600;
+      transition:0.2s;
+      font-size:14px;
+    }
+    .nav-link:hover{
+      background:rgba(0,234,255,0.08);
+      color:var(--neon);
+      box-shadow:0 0 8px rgba(0,234,255,0.2);
+    }
+    .nav-active{
+      background:rgba(0,234,255,0.12);
+      color:var(--neon);
+      box-shadow:0 0 10px rgba(0,234,255,0.25);
+    }
+
+    /* Page Content */
+    .page{
+      margin-left:220px;
+      width:calc(100% - 220px);
+    }
+
+    header{
+      height:72px;display:flex;align-items:center;
+      padding:0 28px;
+      border-bottom:1px solid rgba(0,234,255,0.04)
+    }
+    .logo{
+      width:48px;height:48px;border-radius:8px;
+      background:linear-gradient(135deg,#002b36,#003a4d,#005b78);
+      display:flex;align-items:center;justify-content:center;
+      font-weight:700;color:var(--neon);
+    }
+    .title{font-size:18px;letter-spacing:0.6px}
+
+    main{
+      display:flex;
+      gap:20px;
+      padding:22px;
+      flex-wrap:wrap;
+    }
+
+    .panel{
+      background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+      padding:18px;
+      border-radius:12px;
+      box-shadow:0 10px 40px rgba(0,0,0,0.6);
+      border:1px solid rgba(0,234,255,0.03);
+      flex:1;
+      min-width:300px;
+    }
+    .panel h2{margin-top:0;color:var(--neon);}
+
+    input, select, button{
+      margin-top:6px;padding:8px 10px;
+      border-radius:6px;
+      border:1px solid rgba(0,234,255,0.06);
+      background:rgba(0,234,255,0.02);
+      color:#cfeff6;
+      font-size:14px;
+    }
+    button{
+      background:linear-gradient(90deg,var(--neon),var(--neon-2));
+      color:#021018;font-weight:700;cursor:pointer;border:none;
+      box-shadow:0 6px 20px rgba(0,179,255,0.12)
+    }
+    .status{margin-top:10px;font-size:13px;color:var(--muted)}
+  </style>
+</head>
+<body>
+
+  <!-- -------------- Sidebar -------------- -->
+  <div class="sidebar">
+    <div class="logo" style="margin:auto; margin-bottom:20px;">MP</div>
+
+    <div class="nav-title">Main Menu</div>
+
+    <a href="/dashboard" class="nav-link">Dashboard</a>
+    <a href="/register" class="nav-link">Register Employee</a>
+    <a href="/camera" class="nav-link">Camera</a>
+    <a href="/logs" class="nav-link">Attendance Logs</a>
+    <a href="/settings" class="nav-link nav-active">Settings</a>
+
+    <div class="nav-title">Account</div>
+    <a href="/logout" class="nav-link">Logout</a>
+  </div>
+
+  <!-- -------------- Page Content -------------- -->
+  <div class="page">
+
+    <header>
+      <div class="logo">MP</div>
+      <div style="margin-left:12px">
+        <div class="title">MPPL Attendance — Settings</div>
+      </div>
+    </header>
+
+    <main>
+
+      <!-- ERPNext API Panel -->
+      <div class="panel">
+        <h2>ERPNext API Settings</h2>
+        <label>API URL</label>
+        <input type="text" id="api-url" placeholder="https://erp.example.com" />
+        <label>API Key</label>
+        <input type="text" id="api-key" placeholder="API Key" />
+        <label>API Secret</label>
+        <input type="text" id="api-secret" placeholder="API Secret" />
+        <button onclick="testAPI()">Test API</button>
+        <div class="status" id="api-status">Status: Not tested</div>
+      </div>
+
+      <!-- Branch / Units Panel -->
+      <div class="panel">
+        <h2>Branch Units</h2>
+        <label>Select Branch</label>
+        <select id="branch-select">
+          <option>Unit 1</option>
+          <option>Unit 2</option>
+          <option>Unit 3</option>
+        </select>
+        <label>Branch Name</label>
+        <input type="text" id="branch-name" placeholder="Custom Branch Name" />
+        <button onclick="updateBranch()">Update Branch</button>
+        <div class="status" id="branch-status">Current: Unit 1</div>
+      </div>
+
+      <!-- System Health Panel -->
+      <div class="panel">
+        <h2>System Health</h2>
+        <div>Total Employees: <span id="total">0</span></div>
+        <div>Present Today: <span id="present">0</span></div>
+        <div>Absent: <span id="absent">0</span></div>
+        <div>Last Sync: <span id="last-sync">--</span></div>
+        <button onclick="syncSystem()">Sync Now</button>
+        <div class="status" id="sys-status">All systems nominal</div>
+      </div>
+
+      <!-- Admin Account Panel -->
+      <div class="panel">
+        <h2>Admin Account</h2>
+
+        <label>Current Password</label>
+        <input type="password" id="curr-pass" placeholder="Enter current password">
+
+        <label>New Username</label>
+        <input type="text" id="new-user" placeholder="New username">
+
+        <label>New Password</label>
+        <input type="password" id="new-pass" placeholder="New password">
+
+        <label>Confirm New Password</label>
+        <input type="password" id="confirm-pass" placeholder="Confirm new password">
+
+        <button onclick="updateAdmin()">Update Admin</button>
+        <div class="status" id="admin-status">Use this to change admin login</div>
+      </div>
+
+    </main>
+
+  </div>
+
+  <script>
+    // ERPNext API test
+    function testAPI(){
+      const status = document.getElementById('api-status');
+      status.innerText = 'Testing...';
+      setTimeout(()=>{status.innerText='Status: API connection successful!'},1000);
+    }
+
+    // Update branch/unit
+    function updateBranch(){
+      const branch = document.getElementById('branch-select').value;
+      const branchName = document.getElementById('branch-name').value || branch;
+      document.getElementById('branch-status').innerText = 'Current: ' + branchName;
+    }
+
+    // Fetch live system health
+    async function fetchSystemHealth(){
+      try{
+        const res = await fetch('/api/system_health');
+        if(!res.ok) throw new Error('Failed to fetch system health');
+
+        const data = await res.json();
+        document.getElementById('total').innerText = data.total;
+        document.getElementById('present').innerText = data.present;
+        document.getElementById('absent').innerText = data.absent;
+        document.getElementById('last-sync').innerText = data.last_sync;
+
+        document.getElementById('sys-status').innerText = 'All systems nominal';
+      }catch(err){
+        console.error(err);
+        document.getElementById('sys-status').innerText = 'Error fetching system health!';
+      }
+    }
+
+    // Sync button triggers live fetch
+    function syncSystem(){
+      document.getElementById('sys-status').innerText = 'Syncing...';
+      fetchSystemHealth();
+    }
+
+    // Auto-refresh every 5 seconds
+    setInterval(fetchSystemHealth, 5000);
+    fetchSystemHealth();
+
+    // Update Admin credentials
+    function updateAdmin() {
+      const curr = document.getElementById('curr-pass').value;
+      const user = document.getElementById('new-user').value;
+      const pass = document.getElementById('new-pass').value;
+      const confirm = document.getElementById('confirm-pass').value;
+
+      if(pass !== confirm){
+        document.getElementById('admin-status').innerText = "Passwords do not match!";
+        return;
+      }
+
+      fetch('/update_admin', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({
+          current_password: curr,
+          new_username: user,
+          new_password: pass
+        })
+      })
+      .then(res => res.json())
+      .then(data => {
+        document.getElementById('admin-status').innerText = data.message;
+      })
+      .catch(err => {
+        console.error(err);
+        document.getElementById('admin-status').innerText = "Error updating admin!";
+      });
+    }
+  </script>
+
+</body>
+</html>

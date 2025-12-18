@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>MPPL Attendance — JARVIS Dashboard</title>
+
+  <style>
+    :root{
+      --bg-1:#03060a; --bg-2:#071426; --neon:#00eaff; --neon-2:#00b3ff;
+      --glass: rgba(255,255,255,0.04); --muted:#9bb7c6;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%;margin:0;font-family:Inter,Segoe UI,Helvetica,Arial,sans-serif;background:radial-gradient(1200px 600px at 10% 10%, #052033 0%, transparent 10%), linear-gradient(180deg,var(--bg-1),var(--bg-2)); color:#cfeff6;}
+    header{height:72px;display:flex;align-items:center;padding:0 28px;border-bottom:1px solid rgba(0,234,255,0.04);backdrop-filter: blur(6px)}
+    .brand{display:flex;align-items:center;gap:14px}
+    .logo {width:48px;height:48px;border-radius:8px;background:linear-gradient(135deg,#002b36 0%, #003a4d 50%, #005b78 100%);display:flex;align-items:center;justify-content:center;font-weight:700;color:var(--neon);}
+    .title{font-size:18px;letter-spacing:0.6px}
+    .sub{font-size:12px;color:var(--muted);margin-top:2px}
+    .root{display:grid;grid-template-columns:240px 1fr 360px;gap:20px;padding:22px;height:calc(100vh - 72px)}
+    .sidebar{background:linear-gradient(180deg, rgba(0,234,255,0.02), rgba(0,179,255,0.01));border-radius:12px;padding:18px;box-shadow:0 6px 30px rgba(0,0,0,0.6)}
+    .nav{display:flex;flex-direction:column;gap:8px;margin-top:18px}
+    .nav a{display:flex;align-items:center;gap:12px;padding:12px;border-radius:10px;color:var(--neon);text-decoration:none;font-weight:600;font-size:13px;transition:all .18s}
+    .nav a .dot{width:10px;height:10px;border-radius:50%;background:linear-gradient(45deg,var(--neon),var(--neon-2));box-shadow:0 0 10px var(--neon);}
+    .nav a:hover{transform:translateX(6px);background:rgba(0,234,255,0.03);box-shadow:0 0 18px rgba(0,234,255,0.03)}
+    .center{display:flex;flex-direction:column;gap:20px}
+    .panel{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));padding:18px;border-radius:12px;box-shadow: 0 10px 40px rgba(0,0,0,0.6);border:1px solid rgba(0,234,255,0.03)}
+    .panel.huge{height:420px;position:relative;overflow:hidden}
+    .ctime{display:flex;align-items:center;justify-content:space-between}
+    .ctime .dt{font-size:18px}
+    .ctime .clock{font-size:36px;font-weight:700;color:var(--neon);letter-spacing:1px}
+    .wave-canvas{position:absolute;inset:0;pointer-events:none;opacity:0.22}
+    .btn{background:linear-gradient(90deg,var(--neon),var(--neon-2));color:#021018;padding:10px 14px;border-radius:8px;font-weight:700;cursor:pointer;border:none;box-shadow:0 6px 20px rgba(0,179,255,0.12)}
+    .ghost{background:transparent;color:var(--neon);border:1px solid rgba(0,234,255,0.06);padding:8px 12px;border-radius:8px;cursor:pointer}
+    .widgets{display:flex;flex-direction:column;gap:12px}
+    .widget{display:flex;flex-direction:column;padding:14px;border-radius:10px;background:linear-gradient(180deg, rgba(0,234,255,0.02), rgba(0,179,255,0.01));border:1px solid rgba(0,234,255,0.04);box-shadow:0 8px 30px rgba(0,0,0,0.5)}
+    .widget h3{margin:0;font-size:13px;color:var(--muted)}
+    .widget p{margin:8px 0 0;font-size:26px;font-weight:800;color:var(--neon)}
+    .log-table{width:100%;border-collapse:collapse;margin-top:8px;color:#d8f6ff}
+    .log-table th, .log-table td{padding:10px 12px;border-bottom:1px solid rgba(255,255,255,0.03);font-size:13px}
+    .log-table th{color:var(--muted);font-weight:700;text-align:left}
+    .badge{display:inline-block;padding:6px 8px;border-radius:8px;background:rgba(0,255,200,0.06);color:var(--neon-2);font-weight:700;font-size:12px}
+    .empty-msg{text-align:center;font-style:italic;color:var(--muted);}
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="brand">
+    <div class="logo">MP</div>
+    <div>
+      <div class="title">MPPL Attendance</div>
+      <div class="sub">Real-time Face Recognition Dashboard</div>
+    </div>
+  </div>
+  <div style="flex:1"></div>
+  <div style="display:flex; gap:12px; align-items:center;">
+    <a href="/login" style="text-decoration:none; padding:8px 16px; background:var(--neon); color:#021018; border-radius:8px; font-weight:700; font-size:13px;">Login</a>
+    <a href="/logout" style="text-decoration:none; padding:8px 16px; background:transparent; border-radius:8px; font-weight:700; font-size:13px; color:var(--neon); border:1px solid rgba(0,234,255,0.2);">Logout</a>
+  </div>
+</header>
+
+<main class="root">
+  <aside class="sidebar panel">
+    <div style="display:flex;align-items:center;justify-content:space-between">
+      <div style="font-weight:800;color:var(--neon)">MAIN MENU</div>
+      <div class="small-note">v1.0</div>
+    </div>
+    <nav class="nav">
+      <a href="/dashboard"><span class="dot"></span> Dashboard</a>
+      <a href="/register"><span class="dot"></span> Register Face</a>
+      <a href="/logs"><span class="dot"></span> Attendance Logs</a>
+      <a href="/camera"><span class="dot"></span> Open Camera</a>
+      <a href="/settings"><span class="dot"></span> Settings</a>
+      <a href="/employees"><span class="dot"></span> Employee List</a>
+    </nav>
+  </aside>
+
+  <section class="center">
+    <div class="panel huge">
+      <div class="ctime">
+        <div>
+          <div class="dt" id="date">Loading date...</div>
+          <div class="clock" id="time">--:--:--</div>
+          <div class="small-note" id="greeting">Initializing MPPL AI...</div>
+        </div>
+      </div>
+      <canvas id="wave" class="wave-canvas"></canvas>
+      <div style="position:absolute;right:28px;bottom:28px;display:flex;gap:8px;align-items:center">
+        <button class="btn" onclick="openCamera()">Open Camera</button>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div style="display:flex;align-items:center;justify-content:space-between">
+        <div style="font-weight:800">Recent Attendance</div>
+        <div class="small-note">Auto-refresh every 3s</div>
+      </div>
+
+      <table class="log-table" id="log-table">
+        <thead>
+          <tr>
+            <th>Employee</th><th>Branch</th><th>Time</th><th>Status</th>
+          </tr>
+        </thead>
+        <tbody id="log-body">
+          <tr><td colspan="4" class="empty-msg">Loading...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <aside class="widgets">
+    <div class="widget panel">
+      <h3>Total Employees</h3>
+      <p id="total">{{ total }}</p>
+    </div>
+
+    <div class="widget panel">
+      <h3>Present Today</h3>
+      <p id="present">{{ present }}</p>
+    </div>
+
+    <div class="widget panel">
+      <h3>Absent</h3>
+      <p id="absent">{{ absent }}</p>
+    </div>
+
+    <div class="widget panel">
+      <h3>Last Detected</h3>
+      <p id="last-detected">{{ last_detected }}</p>
+    </div>
+
+    <div class="widget panel">
+      <h3>System Health</h3>
+      <p id="sys-health">OK</p>
+    </div>
+  </aside>
+</main>
+
+<script>
+function updateTime() {
+  const d = new Date();
+  document.getElementById('date').innerText = d.toLocaleDateString();
+  document.getElementById('time').innerText = d.toLocaleTimeString();
+}
+setInterval(updateTime, 1000);
+updateTime();
+
+function openCamera() { window.open('/camera', '_blank'); }
+
+// ------------------------
+// Fetch recent attendance
+// ------------------------
+async function fetchAttendance() {
+  try {
+    const res = await fetch('/api/recent_attendance');
+    if (!res.ok) throw new Error('Failed to fetch attendance');
+    const data = await res.json();
+
+    const tbody = document.getElementById('log-body');
+    tbody.innerHTML = '';
+
+    if (data.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="4" class="empty-msg">No attendance yet</td></tr>';
+      document.getElementById('last-detected').innerText = '-';
+      return;
+    }
+
+    data.forEach(log => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `<td>${log.name} (${log.emp_id})</td>
+                      <td>${log.branch}</td>
+                      <td>${log.timestamp}</td>
+                      <td><span class="badge">${log.status}</span></td>`;
+      tbody.appendChild(tr);
+    });
+
+    // Update Last Detected widget (most recent first)
+    const last = data[0];
+    document.getElementById('last-detected').innerText = `${last.name} • ${last.branch} • ${last.status}`;
+
+  } catch(err) {
+    console.error(err);
+    const tbody = document.getElementById('log-body');
+    tbody.innerHTML = '<tr><td colspan="4" class="empty-msg">Error fetching attendance</td></tr>';
+    document.getElementById('last-detected').innerText = '-';
+  }
+}
+
+// Auto-refresh every 3 seconds
+setInterval(fetchAttendance, 3000);
+fetchAttendance();
+</script>
+
+</body>
+</html>

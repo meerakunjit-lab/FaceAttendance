@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Employee List | MPPL Attendance</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <style>
+    body{
+      margin:0;
+      font-family:Inter,Segoe UI,Arial;
+      background:#03060a;
+      color:#cfeff6;
+    }
+    header{
+      padding:16px 24px;
+      border-bottom:1px solid rgba(0,234,255,0.1);
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+    }
+    h1{margin:0;font-size:20px;color:#00eaff}
+    .container{padding:24px}
+    table{
+      width:100%;
+      border-collapse:collapse;
+      margin-top:16px;
+    }
+    th,td{
+      padding:12px;
+      border-bottom:1px solid rgba(255,255,255,0.06);
+      text-align:left;
+      font-size:14px;
+    }
+    th{color:#9bb7c6}
+    tr:hover{background:rgba(0,234,255,0.05)}
+    .btn{
+      padding:6px 12px;
+      border:none;
+      border-radius:6px;
+      cursor:pointer;
+      font-weight:600;
+    }
+    .edit{background:#00b3ff;color:#021018}
+    .delete{background:#ff4d4d;color:white}
+    .top-bar{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+    }
+    .back{
+      color:#00eaff;
+      text-decoration:none;
+      font-weight:600;
+    }
+    .status{
+      margin-top:10px;
+      color:#9bb7c6;
+      font-size:13px;
+    }
+  </style>
+</head>
+
+<body>
+
+<header>
+  <h1>Employee List</h1>
+  <a class="back" href="/dashboard">← Back to Dashboard</a>
+</header>
+
+<div class="container">
+
+  <div class="top-bar">
+    <div class="status" id="status">Loading employees...</div>
+  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Employee ID</th>
+        <th>Name</th>
+        <th>Branch</th>
+        <th>Phone</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody id="emp-body">
+      <!-- REAL DATA FROM DB -->
+    </tbody>
+  </table>
+
+</div>
+
+<script>
+function loadEmployees(){
+  fetch('/api/employees')
+    .then(res => res.json())
+    .then(data => {
+      const body = document.getElementById('emp-body');
+      body.innerHTML = '';
+
+      if(data.length === 0){
+        document.getElementById('status').innerText = "No employees found";
+        return;
+      }
+
+      document.getElementById('status').innerText =
+        `Total Employees: ${data.length}`;
+
+      data.forEach(emp => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${emp.emp_id}</td>
+          <td>${emp.name}</td>
+          <td>${emp.branch}</td>
+          <td>${emp.phone || '-'}</td>
+          <td>
+            <button class="btn edit" onclick="editEmp(${emp.id})">Edit</button>
+            <button class="btn delete" onclick="deleteEmp(${emp.id})">Delete</button>
+          </td>
+        `;
+        body.appendChild(tr);
+      });
+    })
+    .catch(() => {
+      document.getElementById('status').innerText = "Failed to load employees";
+    });
+}
+
+function editEmp(id){
+  window.location.href = `/edit_employee/${id}`;
+}
+
+function deleteEmp(id){
+  if(!confirm("Are you sure to delete this employee?")) return;
+
+  fetch(`/delete_employee/${id}`, { method:'POST' })
+    .then(res=>res.json())
+    .then(data=>{
+      alert(data.message);
+      loadEmployees();
+    });
+}
+
+loadEmployees();
+</script>
+
+</body>
+</html>

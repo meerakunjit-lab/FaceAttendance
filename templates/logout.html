@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Logged Out</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            background: radial-gradient(circle at center, #0a0f24, #000);
+            font-family: 'Segoe UI', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #00eaff;
+            text-align: center;
+        }
+
+        .box {
+            padding: 40px;
+            background: rgba(0, 255, 255, 0.05);
+            border: 1px solid #0ff;
+            border-radius: 12px;
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.2);
+            backdrop-filter: blur(8px);
+        }
+
+        h1 {
+            margin: 0;
+            font-size: 32px;
+            text-shadow: 0 0 10px #00eaff;
+        }
+
+        p {
+            margin: 10px 0 25px;
+            font-size: 18px;
+            opacity: 0.8;
+        }
+
+        a {
+            padding: 10px 20px;
+            background: #00eaff;
+            color: #000;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            box-shadow: 0 0 12px #00eaff;
+        }
+
+        a:hover {
+            background: #00cfe0;
+            box-shadow: 0 0 18px #00eaff;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="box">
+        <h1>You have been logged out</h1>
+        <p>Thank you for using the Face Attendance System</p>
+        <a href="/login">Login Again</a>
+    </div>
+
+</body>
+</html>

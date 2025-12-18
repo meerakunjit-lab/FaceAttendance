@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MPPL Attendance — Register Employee & Face</title>
+
+  <style>
+    :root{
+      --bg:#03060a;
+      --neon:#00eaff;
+      --neon-2:#00b3ff;
+      --muted:#9bb7c6;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family:Inter,Segoe UI,sans-serif;
+      background:linear-gradient(180deg,#03060a,#071426);
+      color:#cfeff6;
+      display:flex;
+    }
+
+    /* SIDEBAR */
+    .sidebar {
+      width: 220px;
+      height: 100vh;
+      position: fixed;
+      left: 0;
+      top: 0;
+      background: rgba(0, 20, 30, 0.84);
+      backdrop-filter: blur(8px);
+      border-right: 1px solid rgba(0,234,255,0.08);
+      padding-top: 20px;
+      display: flex;
+      flex-direction: column;
+    }
+    .side-logo {text-align:center;color:var(--neon);font-size:22px;font-weight:700;margin-bottom:25px;}
+    .nav-item{padding:14px 20px;color:#cfeff6;text-decoration:none;display:block;font-size:15px;border-left:3px solid transparent;}
+    .nav-item:hover{background:rgba(0,234,255,0.08);border-left:3px solid var(--neon);color:var(--neon);}
+    .logout-box{margin-top:auto;padding:20px;}
+    .logout-btn{display:block;padding:12px;background:linear-gradient(90deg,var(--neon),var(--neon-2));text-align:center;border-radius:8px;font-weight:700;color:#021018;text-decoration:none;}
+
+    /* CONTENT AREA */
+    .content {margin-left: 230px;width: calc(100% - 230px);}
+    header{height:72px;display:flex;align-items:center;padding:0 28px;border-bottom:1px solid rgba(0,234,255,0.04);backdrop-filter:blur(6px)}
+    .logo{width:48px;height:48px;border-radius:8px;background:linear-gradient(135deg,#002b36,#003a4d,#005b78);display:flex;align-items:center;justify-content:center;font-weight:700;color:var(--neon);}
+    .title{font-size:18px;letter-spacing:0.6px}
+
+    main{display:flex;gap:20px;padding:22px}
+    .panel{background:linear-gradient(180deg,rgba(255,255,255,0.02),rgba(255,255,255,0.01));padding:18px;border-radius:12px;box-shadow:0 10px 40px rgba(0,0,0,0.6);border:1px solid rgba(0,234,255,0.03);}
+    .panel h2{margin-top:0;color:var(--neon);}
+    .input-group{margin-bottom:14px;display:flex;flex-direction:column;}
+    .input-group label{font-size:13px;color:var(--muted);margin-bottom:4px;}
+    .input-group input{padding:10px 12px;border-radius:8px;border:none;background:rgba(255,255,255,0.04);color:#cfeff6;font-size:14px;}
+    .btn{background:linear-gradient(90deg,var(--neon),var(--neon-2));color:#021018;padding:10px 14px;border-radius:8px;font-weight:700;cursor:pointer;border:none;box-shadow:0 6px 20px rgba(0,179,255,0.12);}
+    video{border-radius:12px;width:100%;max-width:480px;height:auto;background:#000;}
+    .status{margin-top:10px;font-size:13px;color:var(--muted)}
+    
+    .toast {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--neon);
+      color: #021018;
+      padding: 12px 20px;
+      border-radius: 8px;
+      font-weight: 700;
+      display: none;
+      box-shadow: 0 6px 20px rgba(0,179,255,0.12);
+      z-index: 1000;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="side-logo">MPPL</div>
+    <a href="/dashboard" class="nav-item">Dashboard</a>
+    <a href="/register" class="nav-item">Register Employee</a>
+    <a href="/camera" class="nav-item">Camera</a>
+    <a href="/logs" class="nav-item">Attendance Logs</a>
+    <a href="/settings" class="nav-item">Settings</a>
+    <div class="logout-box">
+      <a href="/logout" class="logout-btn">Logout</a>
+    </div>
+  </div>
+
+  <!-- CONTENT -->
+  <div class="content">
+    <header>
+      <div class="logo">MP</div>
+      <div style="margin-left:12px">
+        <div class="title">MPPL Attendance — Register Employee & Face</div>
+      </div>
+    </header>
+
+    <main>
+      <!-- Left panel: Employee Registration -->
+      <div class="panel" style="flex:1">
+        <h2>Employee Registration</h2>
+        <div class="input-group">
+          <label for="emp-id">Employee ID (Auto-generated)</label>
+          <input type="text" id="emp-id" placeholder="Will be generated automatically" readonly>
+        </div>
+        <div class="input-group">
+          <label for="emp-name">Name</label>
+          <input type="text" id="emp-name" placeholder="Enter Name">
+        </div>
+        <div class="input-group">
+          <label for="emp-branch">Branch / Department</label>
+          <input type="text" id="emp-branch" placeholder="Enter Branch or Department">
+        </div>
+        <div class="input-group">
+          <label for="emp-phone">Phone</label>
+          <input type="text" id="emp-phone" placeholder="Enter Phone Number">
+        </div>
+        <button class="btn" onclick="registerEmployee()">Register Employee</button>
+        <div class="status" id="reg-status">Fill details and click Register</div>
+      </div>
+
+      <!-- Right panel: Camera Capture -->
+      <div class="panel" style="flex:1;display:flex;flex-direction:column;align-items:center">
+        <h2>Camera Capture</h2>
+        <video id="video" autoplay></video>
+        <button class="btn" style="margin-top:10px" onclick="captureFace()">Capture Face</button>
+        <div class="status" id="capture-status">Camera not started</div>
+      </div>
+    </main>
+  </div>
+
+  <div id="toast" class="toast"></div>
+
+  <script>
+    const video = document.getElementById('video');
+    const toast = document.getElementById('toast');
+
+    navigator.mediaDevices.getUserMedia({video:true})
+      .then(stream => { 
+        video.srcObject = stream;
+        document.getElementById('capture-status').innerText = "Camera ready"; 
+      })
+      .catch(err => { 
+        console.error(err); 
+        document.getElementById('capture-status').innerText = "Camera access denied"; 
+      });
+
+    function showToast(message){
+      toast.innerText = message;
+      toast.style.display = "block";
+      setTimeout(()=>{ toast.style.display="none"; }, 2500);
+    }
+
+    // Register employee
+    function registerEmployee() {
+      const name = document.getElementById('emp-name').value.trim();
+      const branch = document.getElementById('emp-branch').value.trim();
+      const phone = document.getElementById('emp-phone').value.trim();
+
+      if(!name || !branch){
+        alert("Name and Branch are required");
+        return;
+      }
+
+      fetch('/register_employee', {
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({name:name, branch:branch, phone:phone})
+      })
+      .then(res=>res.json())
+      .then(data=>{
+        if(data.success){
+          document.getElementById('emp-id').value = data.emp_id;
+          document.getElementById('reg-status').innerText = data.message;
+          showToast(`Employee Registered: ${data.emp_id}`);
+        } else {
+          document.getElementById('reg-status').innerText = "Error: " + data.message;
+        }
+      })
+      .catch(err=>{
+        console.error(err);
+        document.getElementById('reg-status').innerText = "Registration failed";
+      });
+    }
+
+    // Capture face (save image only, no attendance)
+    function captureFace() {
+      const empId = document.getElementById('emp-id').value.trim();
+      if(!empId){ alert('Enter Employee ID'); return; }
+
+      const canvas = document.createElement('canvas');
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      canvas.getContext('2d').drawImage(video,0,0);
+      const imageData = canvas.toDataURL('image/png');
+
+      document.getElementById('capture-status').innerText = "Uploading...";
+
+      fetch('/register_face', {
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({employee_id: empId, image: imageData})
+      })
+      .then(res=>res.json())
+      .then(data=>{
+        if(data.success){
+          document.getElementById('capture-status').innerText = "Face registered successfully!";
+          showToast(`Face captured for ${empId}`);
+        } else {
+          document.getElementById('capture-status').innerText = "Error: "+data.message;
+        }
+      })
+      .catch(err=>{ 
+        console.error(err); 
+        document.getElementById('capture-status').innerText = "Upload failed"; 
+      });
+    }
+  </script>
+</body>
+</html>

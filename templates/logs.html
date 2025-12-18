@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MPPL Attendance — Logs</title>
+
+  <style>
+    :root{
+      --bg:#03060a;
+      --neon:#00eaff;
+      --neon-2:#00b3ff;
+      --muted:#9bb7c6;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family:Inter,Segoe UI,sans-serif;
+      background:linear-gradient(180deg,#03060a,#071426);
+      color:#cfeff6;
+      display:flex;
+    }
+
+    /* Sidebar */
+    .sidebar{
+      width:220px;
+      height:100vh;
+      background:rgba(0,20,30,0.6);
+      border-right:1px solid rgba(0,234,255,0.06);
+      backdrop-filter:blur(8px);
+      padding:20px 14px;
+      position:fixed;
+    }
+    .nav-title{
+      font-size:14px;
+      color:#6fa7ba;
+      margin:20px 0 10px;
+      font-weight:700;
+    }
+    .nav-link{
+      display:block;
+      padding:10px 12px;
+      margin:4px 0;
+      border-radius:8px;
+      color:#b8dbe8;
+      text-decoration:none;
+      font-weight:600;
+      transition:0.2s;
+      font-size:14px;
+    }
+    .nav-link:hover{
+      background:rgba(0,234,255,0.08);
+      color:var(--neon);
+      box-shadow:0 0 8px rgba(0,234,255,0.2);
+    }
+    .nav-active{
+      background:rgba(0,234,255,0.12);
+      color:var(--neon);
+      box-shadow:0 0 10px rgba(0,234,255,0.25);
+    }
+
+    /* Main Content */
+    .page{
+      margin-left:220px;
+      width:calc(100% - 220px);
+    }
+
+    header{
+      height:72px;
+      display:flex;
+      align-items:center;
+      padding:0 28px;
+      border-bottom:1px solid rgba(0,234,255,0.04)
+    }
+    .logo{
+      width:48px;height:48px;border-radius:8px;
+      background:linear-gradient(135deg,#002b36,#003a4d,#005b78);
+      display:flex;align-items:center;justify-content:center;
+      font-weight:700;color:var(--neon);
+    }
+    .title{font-size:18px;letter-spacing:0.6px}
+
+    main{display:flex;gap:20px;padding:22px}
+    .panel{
+      background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+      padding:18px;
+      border-radius:12px;
+      box-shadow:0 10px 40px rgba(0,0,0,0.6);
+      border:1px solid rgba(0,234,255,0.03);
+    }
+    .panel h2{margin-top:0;color:var(--neon);}
+    table{width:100%;border-collapse:collapse;margin-top:12px;color:#d8f6ff}
+    th, td{padding:10px 12px;border-bottom:1px solid rgba(255,255,255,0.03);font-size:13px}
+    th{color:var(--muted);text-align:left;font-weight:700}
+    .badge{display:inline-block;padding:6px 8px;border-radius:8px;background:rgba(0,255,200,0.06);color:var(--neon-2);font-weight:700;font-size:12px}
+    .status{margin-top:10px;font-size:13px;color:var(--muted)}
+  </style>
+</head>
+<body>
+
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <div class="logo" style="margin:auto; margin-bottom:20px;">MP</div>
+
+    <div class="nav-title">Main Menu</div>
+    <a href="/dashboard" class="nav-link">Dashboard</a>
+    <a href="/register" class="nav-link">Register Employee</a>
+    <a href="/camera" class="nav-link">Camera</a>
+    <a href="/logs" class="nav-link nav-active">Attendance Logs</a>
+    <a href="/settings" class="nav-link">Settings</a>
+
+    <div class="nav-title">Account</div>
+    <a href="/logout" class="nav-link">Logout</a>
+  </div>
+
+  <!-- Page Content -->
+  <div class="page">
+    <header>
+      <div class="logo">MP</div>
+      <div style="margin-left:12px">
+        <div class="title">MPPL Attendance — Logs</div>
+      </div>
+    </header>
+
+    <main>
+      <!-- Stats Panel -->
+      <div class="panel" style="flex:1">
+        <h2>Attendance Stats</h2>
+        <div>Total Employees: <span id="total">{{ total }}</span></div>
+        <div>Present Today: <span id="present">{{ present }}</span></div>
+        <div>Absent: <span id="absent">{{ absent }}</span></div>
+        <div style="margin-top:12px">Last Detected: <span id="last-detected">{{ last_detected }}</span></div>
+      </div>
+
+      <!-- Logs Table -->
+      <div class="panel" style="flex:2">
+        <h2>Recent Attendance Logs</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Employee</th><th>Branch</th><th>Time</th><th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% if recent_logs %}
+              {% for log in recent_logs %}
+                <tr>
+                  <td>{{ log.name }}</td>
+                  <td>{{ log.branch }}</td>
+                  <td>{{ log.timestamp }}</td>
+                  <td><span class="badge">{{ log.status }}</span></td>
+                </tr>
+              {% endfor %}
+            {% else %}
+                <tr><td colspan="4" style="color:rgba(200,250,255,0.06);text-align:center;padding:12px;">No attendance yet</td></tr>
+            {% endif %}
+          </tbody>
+        </table>
+      </div>
+    </main>
+  </div>
+
+</body>
+</html>
