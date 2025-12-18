@@ -595,4 +595,7 @@ if __name__ == "__main__":
     os.makedirs(FACES_DIR, exist_ok=True)
     create_default_admin()
     create_tables()
-    app.run(debug=True)
+
+    port = int(os.environ.get("PORT", 10000))
+    app.run(host="0.0.0.0", port=port)
+
